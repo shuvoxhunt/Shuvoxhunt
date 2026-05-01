@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Shuvo X Hunt | Complete Reporting System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0f0a;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            overflow-x: hidden;
+        }
+        .binary-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.15;
+        }
+        .binary {
+            position: absolute;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: nowrap;
+            animation: binaryFall linear infinite;
+        }
+        @keyframes binaryFall {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0a0f0a; }
+        ::-webkit-scrollbar-thumb { background: #0f0; border-radius: 5px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .profile-section {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid #0f0;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(0,255,0,0.2); } 50% { box-shadow: 0 0 40px rgba(0,255,0,0.5); } }
+        .profile-pic { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #0f0; margin: 0 auto 15px; background: #111; display: flex; align-items: center; justify-content: center; font-size: 65px; }
+        .profile-name { font-size: 26px; font-weight: bold; color: #0f0; text-shadow: 0 0 10px #0f0; }
+        .profile-bio { font-size: 12px; color: #0f0; opacity: 0.8; margin-top: 8px; }
+        
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .category-btn {
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #0f0;
+            border-radius: 30px;
+            color: #0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 15px #0f0;
+        }
+        
+        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid #0f0; border-radius: 15px; padding: 15px; text-align: center; transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,255,0,0.3); }
+        .stat-number { font-size: 22px; font-weight: bold; color: #0f0; }
+        .stat-label { font-size: 10px; color: #0f0; opacity: 0.7; }
+        
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px; margin-bottom: 40px; }
+        .report-card {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #0f0;
+            border-radius: 15px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(0,255,0,0.1),transparent); transition: left 0.5s; }
+        .report-card:hover::before { left: 100%; }
+        .report-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,255,0,0.3); }
+        .report-icon { font-size: 38px; margin-bottom: 8px; }
+        .report-card h3 { font-size: 14px; margin-bottom: 5px; color: #0f0; }
+        .report-card p { font-size: 10px; color: #0f0; opacity: 0.6; }
+        
+        .steps-box {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #0f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .steps-title { font-size: 16px; color: #0f0; margin-bottom: 15px; }
+        .step { padding: 8px 0; border-bottom: 1px solid rgba(0,255,0,0.2); font-size: 11px; }
+        
+        .social-section { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border: 1px solid #0f0; border-radius: 20px; padding: 25px; margin-bottom: 30px; text-align: center; }
+        .social-links { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 15px; }
+        .social-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(0,0,0,0.5); border: 1px solid #0f0; border-radius: 30px; color: #0f0; text-decoration: none; font-size: 13px; transition: all 0.3s ease; }
+        .social-link:hover { background: #0f0; color: #000; transform: translateY(-3px); }
+        
+        .footer { text-align: center; padding: 20px; color: #0f0; opacity: 0.5; font-size: 11px; border-top: 1px solid rgba(0,255,0,0.2); }
+        .category-section { display: none; }
+        .category-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width:768px) { .stats { grid-template-columns: repeat(2,1fr); } .profile-pic { width: 90px; height: 90px; font-size: 45px; } .profile-name { font-size: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="binary-bg" id="binaryBg"></div>
+    <div class="container">
+        <div class="profile-section">
+            <div class="profile-pic">👨‍💻</div>
+            <div class="profile-name">SHUVO DIP SANA</div>
+            <div class="profile-bio">🔐 Ethical Hacker | Security Researcher | Developer<br>🚨 Complete Reporting System | 100+ Report Links</div>
+        </div>
+        <div class="stats">
+            <div class="stat-card"><div class="stat-number" id="reportCount">0</div><div class="stat-label">TOTAL REPORTS</div></div>
+            <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">CATEGORIES</div></div>
+            <div class="stat-card"><div class="stat-number">24/7</div><div class="stat-label">SYSTEM ONLINE</div></div>
+            <div class="stat-card"><div class="stat-number">100%</div><div class="stat-label">WORKING</div></div>
+        </div>
+        
+        <div class="category-nav">
+            <button class="category-btn active" onclick="showCategory('social')">📱 SOCIAL MEDIA</button>
+            <button class="category-btn" onclick="showCategory('messaging')">💬 MESSAGING</button>
+            <button class="category-btn" onclick="showCategory('banking')">💰 BANKING</button>
+            <button class="category-btn" onclick="showCategory('cyber')">🛡️ CYBER CELL</button>
+            <button class="category-btn" onclick="showCategory('gov')">🏛️ GOVERNMENT</button>
+            <button class="category-btn" onclick="showCategory('scam')">🚨 SCAM REPORT</button>
+            <button class="category-btn" onclick="showCategory('tech')">💻 TECH PLATFORMS</button>
+            <button class="category-btn" onclick="showCategory('socialbd')">🇧🇩 BANGLADESH</button>
+            <button class="category-btn" onclick="showCategory('global')">🌍 GLOBAL</button>
+            <button class="category-btn" onclick="showCategory('emergency')">🆘 EMERGENCY</button>
+            <button class="category-btn" onclick="showCategory('legal')">⚖️ LEGAL</button>
+            <button class="category-btn" onclick="showCategory('guide')">📋 GUIDE</button>
+        </div>
+        
+        <!-- Category Sections -->
+        <div id="category-social" class="category-section active"><div class="report-grid" id="socialGrid"></div></div>
+        <div id="category-messaging" class="category-section"><div class="report-grid" id="messagingGrid"></div></div>
+        <div id="category-banking" class="category-section"><div class="report-grid" id="bankingGrid"></div></div>
+        <div id="category-cyber" class="category-section"><div class="report-grid" id="cyberGrid"></div></div>
+        <div id="category-gov" class="category-section"><div class="report-grid" id="govGrid"></div></div>
+        <div id="category-scam" class="category-section"><div class="report-grid" id="scamGrid"></div></div>
+        <div id="category-tech" class="category-section"><div class="report-grid" id="techGrid"></div></div>
+        <div id="category-socialbd" class="category-section"><div class="report-grid" id="socialbdGrid"></div></div>
+        <div id="category-global" class="category-section"><div class="report-grid" id="globalGrid"></div></div>
+        <div id="category-emergency" class="category-section"><div class="report-grid" id="emergencyGrid"></div></div>
+        <div id="category-legal" class="category-section"><div class="report-grid" id="legalGrid"></div></div>
+        <div id="category-guide" class="category-section">
+            <div class="steps-box">
+                <div class="steps-title">📋 HOW TO REPORT (Step by Step)</div>
+                <div class="step">1️⃣ Click on the platform you want to report</div>
+                <div class="step">2️⃣ Select "Report" or "Find Support" option</div>
+                <div class="step">3️⃣ Choose "Pretending to Be Someone" or "Fake Account"</div>
+                <div class="step">4️⃣ Select "Me" or "A Friend" (if impersonation)</div>
+                <div class="step">5️⃣ Add proof/screenshots if required</div>
+                <div class="step">6️⃣ Submit the report</div>
+                <div class="step">7️⃣ Wait for review (usually 24-48 hours)</div>
+            </div>
+            <div class="steps-box" style="margin-top:15px;">
+                <div class="steps-title">💡 TIPS FOR SUCCESSFUL REPORT</div>
+                <div class="step">✅ Always use real information when reporting</div>
+                <div class="step">✅ Add screenshots as proof</div>
+                <div class="step">✅ Don't report same account multiple times</div>
+                <div class="step">✅ Use proper reporting category</div>
+                <div class="step">✅ Report from original account if impersonation</div>
+                <div class="step">✅ Keep transaction IDs for banking fraud</div>
+            </div>
+        </div>
+        
+        <div class="social-section">
+            <div class="section-title">🌐 CONNECT WITH ME</div>
+            <div class="social-links" id="socialLinks"></div>
+        </div>
+        <div class="footer"><p>⚠️ Educational Purpose Only | Made by SHUVO DIP SANA</p></div>
+    </div>
+    
+    <script>
+        function createBinaryRain() {
+            const container = document.getElementById('binaryBg');
+            for(let i=0;i<80;i++) {
+                const binary = document.createElement('div');
+                binary.className = 'binary';
+                binary.innerHTML = Math.random()>0.5?'1':'0';
+                binary.style.left = Math.random()*100+'%';
+                binary.style.animationDuration = 3+Math.random()*10+'s';
+                binary.style.animationDelay = Math.random()*10+'s';
+                binary.style.fontSize = 10+Math.random()*15+'px';
+                container.appendChild(binary);
+            }
+        }
+        function playWelcomeSound() { const u = new SpeechSynthesisUtterance('Welcome to Shuvo Web'); u.rate=0.9; speechSynthesis.speak(u); }
+        
+        // ===================== ALL REPORT DATA =====================
+        
+        // Social Media Reports
+        const socialReports = [
+            { name: "📘 Facebook Profile", desc: "Report fake/imposter account", icon: "📘", url: "https://www.facebook.com/help/contact/228346257895480" },
+            { name: "📘 Facebook Page", desc: "Report fake Facebook page", icon: "📘", url: "https://www.facebook.com/help/contact/316689642347912" },
+            { name: "📘 Facebook Post", desc: "Report offensive post", icon: "📘", url: "https://www.facebook.com/help/contact/218277693797108" },
+            { name: "📘 Facebook Group", desc: "Report fake/abusive group", icon: "📘", url: "https://www.facebook.com/help/contact/237734921389842" },
+            { name: "📘 Facebook Comment", desc: "Report abusive comment", icon: "📘", url: "https://www.facebook.com/help/contact/112512838935483" },
+            { name: "📘 Facebook Event", desc: "Report fake event", icon: "📘", url: "https://www.facebook.com/help/contact/163398342516195" },
+            { name: "📘 Facebook Ad", desc: "Report scam advertising", icon: "📘", url: "https://www.facebook.com/help/contact/1856425021037976" },
+            { name: "📷 Instagram Account", desc: "Report fake profile", icon: "📷", url: "https://help.instagram.com/contact/1652567838289083" },
+            { name: "📷 Instagram Post", desc: "Report offensive post/story", icon: "📷", url: "https://help.instagram.com/contact/735262877824191" },
+            { name: "📷 Instagram Comment", desc: "Report abusive comment", icon: "📷", url: "https://help.instagram.com/contact/180588299654189" },
+            { name: "📷 Instagram DM", desc: "Report harassing message", icon: "📷", url: "https://help.instagram.com/contact/1709360766019559" },
+            { name: "🎵 TikTok Account", desc: "Report fake account", icon: "🎵", url: "https://www.tiktok.com/legal/report" },
+            { name: "🎵 TikTok Video", desc: "Report offensive video", icon: "🎵", url: "https://www.tiktok.com/legal/report" },
+            { name: "🎵 TikTok Comment", desc: "Report abusive comment", icon: "🎵", url: "https://www.tiktok.com/legal/report" },
+            { name: "🐦 Twitter/X Account", desc: "Report impersonation", icon: "🐦", url: "https://help.twitter.com/forms/impersonation" },
+            { name: "🐦 Twitter/X Tweet", desc: "Report abusive tweet", icon: "🐦", url: "https://help.twitter.com/forms/abusiveuser" },
+            { name: "📺 YouTube Channel", desc: "Report fake channel", icon: "📺", url: "https://support.google.com/youtube/answer/2802027" },
+            { name: "📺 YouTube Video", desc: "Report offensive video", icon: "📺", url: "https://support.google.com/youtube/answer/2802027" },
+            { name: "📺 YouTube Comment", desc: "Report abusive comment", icon: "📺", url: "https://support.google.com/youtube/answer/2802027" },
+            { name: "🔵 LinkedIn Profile", desc: "Report fake profile", icon: "🔵", url: "https://www.linkedin.com/help/linkedin/ask/ts-rd-mdp" },
+            { name: "🔵 LinkedIn Post", desc: "Report offensive post", icon: "🔵", url: "https://www.linkedin.com/help/linkedin/ask/ts-rd-mdp" },
+            { name: "🐙 GitHub User", desc: "Report fake/abusive account", icon: "🐙", url: "https://github.com/contact/report-abuse" },
+            { name: "🐙 GitHub Repo", desc: "Report malicious repo", icon: "🐙", url: "https://github.com/contact/report-abuse" },
+            { name: "📱 Snapchat Account", desc: "Report fake account", icon: "📱", url: "https://support.snapchat.com/en-US/a/report-abuse" },
+            { name: "📱 Snapchat Snap", desc: "Report offensive snap", icon: "📱", url: "https://support.snapchat.com/en-US/a/report-abuse" },
+            { name: "🎮 Discord User", desc: "Report abusive user", icon: "🎮", url: "https://dis.gd/report" },
+            { name: "🎮 Discord Server", desc: "Report malicious server", icon: "🎮", url: "https://dis.gd/report" },
+            { name: "📌 Pinterest Account", desc: "Report fake account", icon: "📌", url: "https://help.pinterest.com/en/contact/report-account" },
+            { name: "📌 Pinterest Pin", desc: "Report offensive pin", icon: "📌", url: "https://help.pinterest.com/en/contact/report-pin" },
+            { name: "💭 Reddit User", desc: "Report abusive user", icon: "💭", url: "https://www.reddit.com/report" },
+            { name: "💭 Reddit Post", desc: "Report offensive post", icon: "💭", url: "https://www.reddit.com/report" },
+            { name: "📰 Telegram Channel", desc: "Report fake channel", icon: "✈️", url: "https://telegram.org/report" },
+            { name: "📰 Telegram Group", desc: "Report malicious group", icon: "✈️", url: "https://telegram.org/report" },
+            { name: "🎵 SoundCloud Track", desc: "Report offensive track", icon: "🎵", url: "https://soundcloud.com/report" }
+        ];
+        
+        // Messaging Apps
+        const messagingReports = [
+            { name: "💬 WhatsApp Number", desc: "Report fake/spam number", icon: "💬", url: "https://faq.whatsapp.com/911761178104312" },
+            { name: "💬 WhatsApp Group", desc: "Report spam group", icon: "💬", url: "https://faq.whatsapp.com/911761178104312" },
+            { name: "✈️ Telegram User", desc: "Report fake user", icon: "✈️", url: "https://telegram.org/report" },
+            { name: "✈️ Telegram Bot", desc: "Report malicious bot", icon: "✈️", url: "https://telegram.org/report" },
+            { name: "💬 WeChat User", desc: "Report fake user", icon: "💬", url: "https://help.wechat.com" },
+            { name: "💬 Signal User", desc: "Report abusive user", icon: "💬", url: "https://signal.org/support" },
+            { name: "💬 Viber User", desc: "Report spam user", icon: "💬", url: "https://www.viber.com/support" },
+            { name: "💬 Line User", desc: "Report fake account", icon: "💬", url: "https://line.me/en/contact" },
+            { name: "💬 IMO User", desc: "Report spam user", icon: "💬", url: "https://imo.im/support" }
+        ];
+        
+        // Banking Reports
+        const bankingReports = [
+            { name: "💚 bKash Number", desc: "Report fraudulent number", icon: "💚", url: "https://www.bkash.com/report-fraud" },
+            { name: "🟠 Nagad Number", desc: "Report fraudulent number", icon: "🟠", url: "https://www.nagad.com.bd/report-fraud" },
+            { name: "🔴 Rocket Number", desc: "Report fraudulent number", icon: "🔴", url: "https://www.rocket.com.bd/report" },
+            { name: "💳 Visa Card Fraud", desc: "Report card fraud", icon: "💳", url: "https://www.visa.com/security/report-fraud" },
+            { name: "💳 MasterCard Fraud", desc: "Report card fraud", icon: "💳", url: "https://www.mastercard.us/en-us/personal/security.html" },
+            { name: "🏦 Bank Fraud BD", desc: "Bangladesh Bank fraud", icon: "🏦", url: "https://www.bb.org.bd/en/index.php/report-fraud" },
+            { name: "🏦 Sonali Bank", desc: "Report fraud", icon: "🏦", url: "https://www.sonalibank.com.bd/complaint" },
+            { name: "🏦 Dutch Bangla Bank", desc: "Report fraud", icon: "🏦", url: "https://www.dutchbanglabank.com/complaint" },
+            { name: "🏦 BRAC Bank", desc: "Report fraud", icon: "🏦", url: "https://www.bracbank.com/complaint" },
+            { name: "🏦 City Bank", desc: "Report fraud", icon: "🏦", url: "https://www.thecitybank.com/complaint" }
+        ];
+        
+        // Cyber Crime Cells
+        const cyberReports = [
+            { name: "🇧🇩 Cyber Crime BD", desc: "Bangladesh Cyber Tribunal", icon: "🇧🇩", url: "https://www.ctt.gov.bd" },
+            { name: "🇧🇩 Police Cyber Cell", desc: "BD Police Cyber Support", icon: "🇧🇩", url: "https://www.police.gov.bd/cyber-crime" },
+            { name: "🇮🇳 Cyber Crime India", desc: "India Cyber Portal", icon: "🇮🇳", url: "https://cybercrime.gov.in" },
+            { name: "🇺🇸 IC3 (FBI)", desc: "US Internet Crime Complaint", icon: "🇺🇸", url: "https://www.ic3.gov" },
+            { name: "🇬🇧 Action Fraud UK", desc: "UK Fraud Reporting", icon: "🇬🇧", url: "https://www.actionfraud.police.uk" },
+            { name: "🇦🇺 Cyber.gov.au", desc: "Australia Cyber Report", icon: "🇦🇺", url: "https://www.cyber.gov.au/report" },
+            { name: "🇨🇦 CAFC Canada", desc: "Canadian Anti-Fraud", icon: "🇨🇦", url: "https://www.antifraudcentre-centreantifraude.ca" },
+            { name: "🇩🇪 Cyber Crime DE", desc: "Germany Cyber Report", icon: "🇩🇪", url: "https://www.polizei.de/cybercrime" },
+            { name: "🇫🇷 Cyber France", desc: "France Cyber Report", icon: "🇫🇷", url: "https://www.cybermalveillance.gouv.fr" },
+            { name: "🇯🇵 Cyber Japan", desc: "Japan Cyber Report", icon: "🇯🇵", url: "https://www.npa.go.jp/cyber" },
+            { name: "🇰🇷 Cyber Korea", desc: "South Korea Cyber", icon: "🇰🇷", url: "https://www.kisa.or.kr" },
+            { name: "🇸🇬 Cyber Singapore", desc: "Singapore Cyber", icon: "🇸🇬", url: "https://www.csa.gov.sg/report" }
+        ];
+        
+        // Government Reports
+        const govReports = [
+            { name: "📞 National Helpline", desc: "Bangladesh 999", icon: "📞", url: "tel:999" },
+            { name: "📞 Women Helpline", desc: "Bangladesh 109", icon: "📞", url: "tel:109" },
+            { name: "📞 Child Helpline", desc: "Bangladesh 1098", icon: "📞", url: "tel:1098" },
+            { name: "📞 Legal Aid", desc: "Bangladesh 16430", icon: "📞", url: "tel:16430" },
+            { name: "📱 BTRC Complaint", desc: "Mobile number complaint", icon: "📱", url: "https://www.btrc.gov.bd/complaint" },
+            { name: "🏛️ ACC Bangladesh", desc: "Anti-Corruption Commission", icon: "🏛️", url: "https://www.acc.org.bd" },
+            { name: "🏛️ Bangladesh Bank", desc: "Central Bank Complaint", icon: "🏛️", url: "https://www.bb.org.bd/complaint" },
+            { name: "🇺🇸 FTC Complaint", desc: "US Federal Trade", icon: "🇺🇸", url: "https://reportfraud.ftc.gov" },
+            { name: "🇬🇧 NCSC Report", desc: "UK National Cyber", icon: "🇬🇧", url: "https://www.ncsc.gov.uk/report" },
+            { name: "🇦🇺 Scamwatch", desc: "Australia Scam Report", icon: "🇦🇺", url: "https://www.scamwatch.gov.au" },
+            { name: "🇨🇦 Fraud Report", desc: "Canada Fraud Report", icon: "🇨🇦", url: "https://www.antifraudcentre.ca" }
+        ];
+        
+        // Scam Reports
+        const scamReports = [
+            { name: "🎣 PhishTank", desc: "Report phishing URL", icon: "🎣", url: "https://www.phishtank.com" },
+            { name: "🦠 VirusTotal", desc: "Report malware", icon: "🦠", url: "https://www.virustotal.com" },
+            { name: "🔗 Google Safe Browsing", desc: "Report malicious site", icon: "🔗", url: "https://safebrowsing.google.com" },
+            { name: "📧 Spam Email", desc: "Report spam email", icon: "📧", url: "https://www.ftc.gov/complaint" },
+            { name: "📱 SMS Spam", desc: "Report spam SMS", icon: "📱", url: "https://www.btrc.gov.bd/complaint" },
+            { name: "💼 Job Scam", desc: "Report fake job offer", icon: "💼", url: "https://www.bbb.org/scamtracker" },
+            { name: "🛒 E-commerce Fraud", desc: "Report online shopping fraud", icon: "🛒", url: "https://www.econsumer.gov" },
+            { name: "💰 Crypto Scam", desc: "Report crypto fraud", icon: "💰", url: "https://www.sec.gov/complaint" },
+            { name: "💝 Romance Scam", desc: "Report dating scam", icon: "💝", url: "https://www.ic3.gov" },
+            { name: "📞 Phone Scam", desc: "Report phone scam", icon: "📞", url: "https://www.donotcall.gov" },
+            { name: "💸 Investment Scam", desc: "Report fake investment", icon: "💸", url: "https://www.sec.gov/complaint" },
+            { name: "🏥 Health Scam", desc: "Report fake medicine", icon: "🏥", url: "https://www.fda.gov/complaint" }
+        ];
+        
+        // Tech Platforms
+        const techReports = [
+            { name: "🔍 Google Account", desc: "Report fake Google account", icon: "🔍", url: "https://support.google.com/accounts/contact/abuse" },
+            { name: "📧 Gmail Spam", desc: "Report spam email", icon: "📧", url: "https://support.google.com/mail/contact/abuse" },
+            { name: "🔍 Google Search", desc: "Report malicious site", icon: "🔍", url: "https://www.google.com/safebrowsing/report" },
+            { name: "📱 Google Play", desc: "Report malicious app", icon: "📱", url: "https://support.google.com/googleplay/contact/report_app" },
+            { name: "🍎 Apple ID", desc: "Report fake Apple ID", icon: "🍎", url: "https://www.apple.com/support/contact" },
+            { name: "💻 Microsoft Account", desc: "Report fake account", icon: "💻", url: "https://www.microsoft.com/en-us/concern/scam" },
+            { name: "📧 Outlook Spam", desc: "Report spam email", icon: "📧", url: "https://support.microsoft.com/en-us/contact" },
+            { name: "📱 Amazon Fraud", desc: "Report Amazon scam", icon: "📱", url: "https://www.amazon.com/report" },
+            { name: "📦 eBay Fraud", desc: "Report eBay scam", icon: "📦", url: "https://www.ebay.com/help/contact" },
+            { name: "🛒 Alibaba Fraud", desc: "Report Alibaba scam", icon: "🛒", url: "https://www.alibaba.com/report" }
+        ];
+        
+        // Bangladesh Social Media
+        const socialbdReports = [
+            { name: "🇧🇩 Facebook BD", desc: "Facebook Bangladesh Report", icon: "🇧🇩", url: "https://www.facebook.com/help/contact/228346257895480" },
+            { name: "🇧🇩 Instagram BD", desc: "Instagram Bangladesh Report", icon: "🇧🇩", url: "https://help.instagram.com/contact/1652567838289083" },
+            { name: "🇧🇩 TikTok BD", desc: "TikTok Bangladesh Report", icon: "🇧🇩", url: "https://www.tiktok.com/legal/report" },
+            { name: "🇧🇩 YouTube BD", desc: "YouTube Bangladesh Report", icon: "🇧🇩", url: "https://support.google.com/youtube/answer/2802027" },
+            { name: "🇧🇩 Twitter BD", desc: "Twitter Bangladesh Report", icon: "🇧🇩", url: "https://help.twitter.com/forms/impersonation" },
+            { name: "🇧🇩 LinkedIn BD", desc: "LinkedIn Bangladesh", icon: "🇧🇩", url: "https://www.linkedin.com/help/linkedin/ask/ts-rd-mdp" }
+        ];
+        
+        // Global Platforms
+        const globalReports = [
+            { name: "🌐 INTERPOL", desc: "International Crime Report", icon: "🌐", url: "https://www.interpol.int/Contact-INTERPOL" },
+            { name: "🌐 Europol", desc: "EU Cyber Crime", icon: "🌐", url: "https://www.europol.europa.eu/report" },
+            { name: "🌐 UNODC", desc: "UN Cyber Crime", icon: "🌐", url: "https://www.unodc.org" },
+            { name: "🌐 APWG", desc: "Anti-Phishing Working Group", icon: "🌐", url: "https://apwg.org/report" },
+            { name: "🌐 OECD Fraud", desc: "OECD Fraud Report", icon: "🌐", url: "https://www.oecd.org/fraud" }
+        ];
+        
+        // Emergency
+        const emergencyReports = [
+            { name: "🆘 National Emergency", desc: "Bangladesh 999", icon: "🆘", url: "tel:999" },
+            { name: "🆘 Women Helpline", desc: "Bangladesh 109", icon: "🆘", url: "tel:109" },
+            { name: "🆘 Child Helpline", desc: "Bangladesh 1098", icon: "🆘", url: "tel:1098" },
+            { name: "🆘 Cyber Emergency", desc: "BD Cyber Cell", icon: "🆘", url: "https://www.police.gov.bd/cyber-crime" },
+            { name: "🆘 US Emergency", desc: "911", icon: "🆘", url: "tel:911" },
+            { name: "🆘 UK Emergency", desc: "999", icon: "🆘", url: "tel:999" },
+            { name: "🆘 India Emergency", desc: "112", icon: "🆘", url: "tel:112" },
+            { name: "🆘 Australia Emergency", desc: "000", icon: "🆘", url: "tel:000" }
+        ];
+        
+        // Legal
+        const legalReports = [
+            { name: "⚖️ BD Attorney General", desc: "Legal complaint", icon: "⚖️", url: "https://www.lawjusticediv.gov.bd" },
+            { name: "⚖️ BD Supreme Court", desc: "Court complaint", icon: "⚖️", url: "https://www.supremecourt.gov.bd" },
+            { name: "⚖️ Human Rights BD", desc: "Human rights violation", icon: "⚖️", url: "https://www.nhrc.org.bd" },
+            { name: "⚖️ ICC", desc: "International Criminal Court", icon: "⚖️", url: "https://www.icc-cpi.int" },
+            { name: "⚖️ UN Human Rights", desc: "UNHRC complaint", icon: "⚖️", url: "https://www.ohchr.org" }
+        ];
+        
+        const socialLinks = [
+            { name: "Facebook", url: "https://facebook.com", icon: "📘" },
+            { name: "Telegram", url: "https://t.me", icon: "✈️" },
+            { name: "Instagram", url: "https://instagram.com", icon: "📷" },
+            { name: "Twitter", url: "https://twitter.com", icon: "🐦" },
+            { name: "TikTok", url: "https://tiktok.com", icon: "🎵" },
+            { name: "GitHub", url: "https://github.com", icon: "🐙" }
+        ];
+        
+        function renderReports() {
+            document.getElementById('socialGrid').innerHTML = socialReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('messagingGrid').innerHTML = messagingReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('bankingGrid').innerHTML = bankingReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('cyberGrid').innerHTML = cyberReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('govGrid').innerHTML = govReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('scamGrid').innerHTML = scamReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('techGrid').innerHTML = techReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('socialbdGrid').innerHTML = socialbdReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('globalGrid').innerHTML = globalReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('emergencyGrid').innerHTML = emergencyReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            document.getElementById('legalGrid').innerHTML = legalReports.map(r=>`<div class="report-card" onclick="window.open('${r.url}','_blank')"><div class="report-icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p></div>`).join('');
+            
+            document.getElementById('socialLinks').innerHTML = socialLinks.map(l=>`<a href="${l.url}" class="social-link" target="_blank">${l.icon} ${l.name}</a>`).join('');
+            
+            let total = socialReports.length + messagingReports.length + bankingReports.length + cyberReports.length + govReports.length + scamReports.length + techReports.length + socialbdReports.length + globalReports.length + emergencyReports.length + legalReports.length;
+            document.getElementById('reportCount').innerHTML = total;
+        }
+        
+        function showCategory(cat) {
+            document.querySelectorAll('.category-section').forEach(s=>s.classList.remove('active'));
+            document.getElementById(`category-${cat}`).classList.add('active');
+            document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('active'));
+            if(event.target) event.target.classList.add('active');
+        }
+        
+        createBinaryRain(); renderReports(); playWelcomeSound();
+    </script>
+</body>
+</html>
